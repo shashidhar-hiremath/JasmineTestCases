@@ -1,0 +1,54 @@
+Unit Testing
+
+1) What is unit testing?
+Unit testing is a software development process in which the smallest testable parts of an application, called units, are individually and independently scrutinized for proper operation.
+
+2) Why unit testing is important?
+	Unit testing Analyze the code behavior (expected and unexpected changes).
+	It behaves as a safeguard against breaking changes. One of the best ways to keep your project bug free is through a test suite.
+	Provides Documentation
+	Debugging Process
+	Finds Software Bugs Early
+	Quality of Code.
+	Reduce Costs.
+
+3) Angular 7 application configuration for unit testing, debug and code coverage.
+
+The Angular CLI downloads and install everything you need to test an Angular application with the Jasmine test framework.
+
+code coverage:-
+angular.json
+"test":{ 
+  "options":{   
+  "codeCoverage": true 
+  }
+}
+
+4) Rule :
+	Dont work with realtime data while testing
+
+5) AAA pattern: Arrange, Act & Assert
+
+6) Simple test case 
+
+7) Terms
+	TestBed
+	describe
+	it
+	beforeAll
+	AfterAll
+	beforeEach
+	AfterEach
+	toBe
+	toEqual
+
+8) Pipe testing
+9) Service Testing
+10) Component Testing
+	fixture
+	detectChanges
+	
+11)f and x
+12) spyOn
+13) and.returnWith
+14) NO_ERRORS_SCHEMA
