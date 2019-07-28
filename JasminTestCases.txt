@@ -1,0 +1,278 @@
+Testing:- 
+
+Types of testing:
+	1) Isolated : unit testing creating every dependent functionalty as mock 
+	2) Intergarion : unit testing also verify dependent functionalty
+	3) Automation : Selenium
+	4) End to End : Protactor
+ 
+
+Angular Jasmin Testing : https://stackblitz.com/edit/angular-testing
+
+>>>ng test
+
+karma.conf.js: 
+{
+	port: 9876, // port in which testcase run
+	autoWatch: false/true, // run automatically on save changes
+	browsers: ['ChromeHeadless']/['Chrome']
+	signleRun: true/false // to run single or multiple times 
+} 
+
+
+
+**************** Basic : **************** 
+
+1) describe : The describe(string, function) function defines what we call a Test Suite, a collection of individual Test Specs.
+
+	describe('Hello world', () => {
+ 
+	});
+
+2) it:  The it(string, function) function defines an individual Test Spec, this contains one or more Test Expectations.
+
+	describe('Hello world', () => {
+  		it('says hello', () => { 
+    			
+  		});
+	});
+
+3) expect: The expect(actual) expression is what we call an Expectation. In conjunction with a Matcher it describes an expected piece of behaviour in the application.
+
+	describe('Hello world', () => {
+  		it('says hello', () => { 
+    			expect(helloWorld())
+  		});
+	});
+	
+4) The matcher(expected) expression is what we call a Matcher. It does a boolean comparison with the expected value passed in vs. the actual value passed to the expect function, if they are false the spec fails.
+
+	describe('Hello world', () => {
+  		it('says hello', () => { 
+    			expect(helloWorld()).toEqual('Hello world!');  
+  		});
+	});
+
+_________________________________________________________________________________
+
+**************** Built-in matchers : ****************
+
+expect(array).toContain(member);
+expect(fn).toThrow(string);
+expect(fn).toThrowError(string);
+expect(instance).toBe(instance);
+expect(mixed).toBeDefined();
+expect(mixed).toBeFalsy();
+expect(mixed).toBeNull();
+expect(mixed).toBeTruthy();
+expect(mixed).toBeUndefined();
+expect(mixed).toEqual(mixed);
+expect(mixed).toMatch(pattern);
+expect(number).toBeCloseTo(number, decimalPlaces);
+expect(number).toBeGreaterThan(number);
+expect(number).toBeLessThan(number);
+expect(number).toBeNaN();
+expect(spy).toHaveBeenCalled();
+expect(spy).toHaveBeenCalledTimes(number);
+expect(spy).toHaveBeenCalledWith(...arguments);
+
+________________________________________________________________________
+
+**************** Setup and teardown ****************
+
+Sometimes in order to test a feature we need to perform some setup, perhaps it’s creating some test objects. Also we may need to perform some cleanup activities after we have finished testing, perhaps we need to delete some files from the hard drive.
+
+1) beforeAll : -
+	This function is called once, before all the specs in describe test suite are run.
+
+	describe('HeroesService', () => {
+		beforeAll(() => {
+    			localStorage.clear();
+    		});
+	});
+
+2) afterAll : -
+	This function is called once after all the specs in a test suite are finished.
+
+	describe('HeroesService', () => {
+		afterAll(() => {
+    			localStorage.clear();
+    		});
+	});
+
+3) beforeEach :- 
+	This function is called before each test specification, it function, has been run.
+
+	describe('HeroesService', () => {
+  		let httpClient: HttpClient;
+  		let httpTestingController: HttpTestingController;
+  		let heroService: HeroesService;
+
+  		beforeEach(() => {
+    			TestBed.configureTestingModule({
+      				// Import the HttpClient mocking services
+      				imports: [ HttpClientTestingModule ],
+      			// Provide the service-under-test and its dependencies
+      				providers: [
+        				HeroesService,
+        				HttpErrorHandler,
+        				MessageService
+      					]
+    			});
+		});
+	});
+
+4) afterEach:
+	This function is called after each test specification has been run.
+
+	afterEach(() => {
+    	// After every test, assert that there are no more pending requests.
+    		httpTestingController.verify();
+  	});
+__________________________________________________________________________________
+
+**************** Disabled and focused tests ****************
+
+1) Disabled test cases
+	xdescribe()
+
+2) Focused test cases
+	fdescribe()
+
+_________________________________________________________________________________
+
+**************** TestBed: **************** 
+	1) To configure a module for the testing environment. 
+	2) The TestBed creates a dynamically-constructed Angular test module that emulates an Angular @NgModule.
+
+ConfigureTestingModule: configure testing module for required dependency
+ 
+	beforeEach(() => {
+
+    			TestBed.configureTestingModule({
+
+      				// Import the HttpClient mocking services
+      				imports: [ HttpClientTestingModule ],
+
+      			// Provide the service-under-test and its dependencies
+      				providers: [
+        				HeroesService,
+        				HttpErrorHandler,
+        				MessageService
+      					]
+    			});
+		});
+
+Note:- All the dependency required for any service, component or directive need to configure in  TestBed.configureTestingModule({}), also verify dependencies dependency are also added in dependency. 
+
+__________________________________________________________________________________
+
+**************** AAA pattern ****************
+Arrange
+Act
+Assert
+
+it("should", ()=>{
+	object.a= false; // Arrange
+	object.a = true; // Act
+	expect(object.a).toBe(true); // Assert
+})
+__________________________________________________________________________________
+
+**************** Testing service ****************
+
+	service: HerosService
+	
+	@Injectable()
+	export class HerosService {
+		constructor(){}
+		addition(a,b) {
+			return a+b;
+		}
+
+		substraction(a,b) {
+			return a-b;
+		}
+	}
+
+Spec:-
+
+	//Testbed.get(HerosService); get service instance 
+
+	describe('HeroesService', () => {
+		const herosService: HerosService;
+  		beforeEach(() => {
+			herosService = Testbed.get(HerosService);	
+		})
+
+		it("should", ()=>{
+			let c= 10;
+			let d= 20;
+			const mockTotal = 30;
+			expect(herosService.add(c, d)).toEqual(mockTotal);
+		})		
+	});
+
+----------------------------------------------------------------------------------
+
+Mocking function return:- mocking function return so that testing functionality doenst dependent on other function called in it.
+
+const spyCallBack = spyOn(Object, '<function_Name>').and.returnValue(of(<value>))
+
+	@Injectable()
+	export class Math {
+		constructor(){}
+		addition(a,b) {
+			return a+b;
+		}
+	}
+			/***/
+	@Injectable()
+	export class HerosService {
+		constructor(private math: Math){}
+		totalPower(hero1, hero2) {
+			return (math.addtion(hero1.power, hero2.power));
+		}
+	}
+
+Spec:-
+
+	describe('HeroesService', () => {
+		const herosService: HerosService;
+		const math: Math;
+  		beforeEach(() => {
+			TestBed.configureTestingModule({
+      				providers: [Math]
+    			});
+			math = Testbed.get(Math);
+			herosService = Testbed.get(HerosService);	
+		})
+
+		it("should", ()=>{
+<imp>			const spyCallBack = spyOn(math, 'addition').and.returnValue(of(30))
+			let c= 10;
+			let d= 20;
+			const mockTotal = 30;
+			expect(herosService.totalPower(c, d)).toEqual(mockTotal);
+		})		
+	});
+
+Alternate spec:-
+
+	//useValue: replace provide object with used value for it.
+
+	describe('HeroesService', () => {
+		const herosService: HerosService;
+
+<imp>		const mathStub: { addition: jasmine.createSpy('addition').and.returnValue(30)};
+
+  		beforeEach(() => {
+			TestBed.configureTestingModule({
+<imp>      			providers: [{provide: Math, useValue: mathStub}]
+    			});
+			math = Testbed.get(Math);
+			herosService = Testbed.get(HerosService);	
+		})
+
+
+__________________________________________________________________________________	
