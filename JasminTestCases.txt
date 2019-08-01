@@ -1,5 +1,9 @@
 Testing:- 
 
+Reference links:
+
+https://offering.solutions/blog/articles/2018/08/17/using-useclass-usefactory-usevalue-useexisting-with-treeshakable-providers-in-angular/#usevalue
+
 Types of testing:
 	1) Isolated : unit testing creating every dependent functionalty as mock 
 	2) Intergarion : unit testing also verify dependent functionalty
@@ -284,3 +288,69 @@ Testing Pipe:
 	})
 
 __________________________________________________________________________________
+
+Testing Callback:
+
+	lockBack(value, callbackFun) {
+		value = value + 1;
+		callbackFun(value);
+	}
+
+	tookBack(value, (response) => {
+		this.response = response;
+	})
+
+spec: 
+	//create a dummy object with a mock function in it which will be mock of callback function which we are testing.
+
+	it("should lockBack", ()=>{
+		let mockCallbackObj = {
+			mockCallback: () => {
+			}
+		}
+		
+		let spyCallBack = spyOn(mockCallbackObj, 'mockCallback');
+
+		service.lockBack(1, mockCallbackObj.mockCallback);
+		expect(spyCallBack).HaveBeenCalled()
+	})
+
+	it("should tookBack", ()=>{
+		let mockCallbackObj = {
+			mockCallback: (response) => {
+				expect(response.prop).toEqual(1);
+			}
+		}
+		
+		spyOn(mockCallbackObj, 'mockCallback').and.returnValue({prop:1});
+
+		service.lockBack(1, mockCallbackObj.mockCallback);
+	})
+
+__________________________________________________________________________________
+
+Testing Component:
+
+  describe('Component', () => {
+    let component: Component;
+    let fixture: ComponentFixture<Component>;
+  
+    beforeEach(async(() => {
+      TestBed.configureTestingModule({
+        declarations: [Component],
+        schemas: [NO_ERRORS_SCHEMA]
+      }).compileComponents(); // This is not needed if you are in the CLI context
+    }));
+
+   beforeEach(() => {
+     fixture = TestBed.createComponent(Component);
+     component = fixture.componentInstance;
+     fixture.detectChanges();
+   });
+
+   it('should instantiate', () => {
+      expect(component).toBeDefined();
+   });
+ });
+
+While configureTestingModule need to add all the dependency (component, directive , service , pipe & module). In case it is also need to add dependences dependency.
