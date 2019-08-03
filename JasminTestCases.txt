@@ -342,10 +342,14 @@ Testing Component:
       }).compileComponents(); // This is not needed if you are in the CLI context
     }));
 
-   beforeEach(() => {
-     fixture = TestBed.createComponent(Component);
+<imp>
+
+    beforeEach(() => {
+     // creating instance of the component below are the basic steps
+     fixture = TestBed.createComponent(Comptonent);
      component = fixture.componentInstance;
-     fixture.detectChanges();
+     fixture.detectChanges(); // applying change change detection strategy
+     // if making any change in component then call this else if you are testing changes on UI will not be reflected
    });
 
    it('should instantiate', () => {
@@ -353,4 +357,162 @@ Testing Component:
    });
  });
 
-While configureTestingModule need to add all the dependency (component, directive , service , pipe & module). In case it is also need to add dependences dependency.
+While configureTestingModule need to add all the dependency (component, directive , service , pipe & module). In case it is also needed to add dependences dependency.
+
+__________________________________________________________________________________
+
+Testing Directive :
+
+	@Directive({
+  		selector: '[dtCapitalize]'
+	})
+	export class CapitalizeDirective {
+  		constructor(private el: ElementRef) { }
+
+  		@HostListener('click')
+  		onClick() {
+    		   (this.el.nativeElement.style.textTransform === 'uppercase') 		    		   ?   this.el.nativeElement.style.textTransform = 'lowercase' 
+		   :   this.el.nativeElement.style.textTransform = 'uppercase';
+  		}
+
+	}
+
+Spec: 
+	// create a test component and add your directive into its html element you  want to test
+	@Component({
+  		template: '<p dtCapitalize>Testing Directives is awesome!</p>'
+	})
+	class TestComponent {}
+
+	describe('CapitalizeDirective', () => {
+  		let component: TestComponent;
+  		let fixture: ComponentFixture<TestComponent>;
+
+  		beforeEach(() => {
+    			TestBed.configureTestingModule({
+      			  declarations: [
+        			 TestComponent,
+        			 CapitalizeDirective
+   			  ]
+    			});
+
+    			fixture = TestBed.createComponent(TestComponent);
+    			component = fixture.componentInstance;
+  		});
+
+  		it('should capitalize text when initially clicked', () => {
+    		  const debugEl: HTMLElement = fixture.debugElement.nativeElement;
+    		  const p: HTMLElement = debugEl.querySelector('p');
+
+    		// change capitalize text
+    		  p.click();
+    		  fixture.detectChanges();
+
+    		 // textTransform is the property that gets/sets text casing
+    		  expect(p.style.textTransform).toBe('uppercase');
+  		});
+
+	});
+
+__________________________________________________________________________________
+
+Testing Custom Validation:
+
+1) Validation using in Template driven form [(ngModel)]:
+
+// Template driven form should only be used in small forms
+
+@Directive({
+  selector: '[ngModel][validEmail]',
+  providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => EmailValidatorDirective),
+      multi: true
+    }
+  ]
+})
+class EmailValidatorDirective implements Validator {
+
+  validate(c: AbstractControl): { [key: string]: any } {
+    if (c.value !== 'peeskillet@stackoverflow.com') {
+      return { notPeeskillet: true };
+    }
+    return null;
+  }
+}
+
+Spec:  
+
+@Component({
+  template: `
+    <form>
+      <input name="email" [ngModel]="email" validEmail />
+    </form>
+  `
+})
+class TestComponent {
+  email;
+}
+
+describe('component: TestComponent', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [FormsModule],
+      declarations: [TestComponent, EmailValidatorDirective]
+    });
+  });
+
+  it('should validate', async(() => {
+    let fixture = TestBed.createComponent(TestComponent);
+    let comp = fixture.componentInstance;
+    let debug = fixture.debugElement;
+    let input = debug.query(By.css('[name=email]'));
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      input.nativeElement.value = 'bad@email.com';
+      dispatchEvent(input.nativeElement, 'input');
+      fixture.detectChanges();
+
+      let form: NgForm = debug.children[0].injector.get(NgForm);
+      let control = form.control.get('email');
+      expect(control.hasError('notPeeskillet')).toBe(true);
+      expect(form.control.valid).toEqual(false);
+      expect(form.control.hasError('notPeeskillet', ['email'])).toEqual(true);
+
+      input.nativeElement.value = 'peeskillet@stackoverflow.com';
+      dispatchEvent(input.nativeElement, 'input');
+      fixture.detectChanges();
+
+      expect(control.hasError('notPeeskillet')).toBe(false);
+      expect(form.control.valid).toEqual(true);
+      expect(form.control.hasError('notPeeskillet', ['email'])).toEqual(false);
+    });
+  }));
+});
+
+
+2) Reactive Form: Best for testing and complex forms
+
+
+evenValidate(control: FormControl):{[s:string]:boolean} {
+    if(parseInt(control.value) % 2 !== 0 ) {
+      return {notEvenNumber: true };
+    } 
+    return null;
+  }
+
+Spec: 
+
+ it('should validate', () => {
+   
+    const control = new FormControl('2');
+    expect(component.evenValidate(control)).toEqual(null);
+
+    const control = new FormControl('1');
+    expect(component.evenValidate(control)).toEqual({notEvenNumber: true });
+  });
+
+__________________________________________________________________________________
+
