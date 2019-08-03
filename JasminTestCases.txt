@@ -183,6 +183,13 @@ it("should", ()=>{
 })
 __________________________________________________________________________________
 
+Imports for testing mostly used:
+	
+import { async, ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
+
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+__________________________________________________________________________________
+
 **************** Testing service ****************
 
 	service: HerosService
@@ -341,7 +348,8 @@ Testing Component:
 
   describe('Component', () => {
     let component: Component;
-    let fixture: ComponentFixture<Component>;
+<imp>
+    let fixture: ComponentFixture<Component>;// to store component instance
   
     beforeEach(async(() => {
       TestBed.configureTestingModule({
@@ -571,3 +579,59 @@ Spec:
 
 ___________________________________________________________________________________
 
+Testing HTTPClient:
+
+ getUsers() {
+    return this.http.get<User[]>(`https://api.github.com/users`);
+  }
+
+Spec: 
+
+<imp> concepts
+1) getTestBed(): getting the instance of service , some thing similiar to TestBed
+2) HttpTestingController : Mocking http request
+3) flush: Resolve the request by returning a body plus additional HTTP information
+4) expectOne :  Expect that a single request has been made which matches the given URL, and return its mock.
+5) expectNone : Expect that no requests have been made which match the given URL.
+
+import { TestBed, getTestBed, inject } from '@angular/core/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController
+} from '@angular/common/http/testing';
+
+describe('GithubApiService', () => {
+  let injector;
+  let service: GithubApiService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [GithubApiService]
+    });
+
+    injector = getTestBed();
+    service = injector.get(GithubApiService);
+    httpMock = injector.get(HttpTestingController);
+  });
+
+  describe('#getUsers', () => {
+    it('should return an Observable<User[]>', () => {
+      const dummyUsers: User[] = [
+        new User(0, 'John'),
+        new User(1, 'Doe')
+      ];
+
+      service.getUsers().subscribe(users => {
+        expect(users.length).toBe(2);
+        expect(users).toEqual(dummyUsers);
+      });
+
+      const req = httpMock.expectOne(`https://api.github.com/users`);
+      expect(req.request.method).toBe('GET');
+      req.flush(dummyUsers);
+    });
+  });
+});
+__________________________________________________________________________________
