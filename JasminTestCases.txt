@@ -218,6 +218,14 @@ Spec:-
 	});
 
 ----------------------------------------------------------------------------------
+Mocking function is called: if we dont want to test actual call of function then we can create a spy of that function 
+
+const spyFunction = spyOn(<object>, '<function_name>');
+
+expect(spyFunction).haveBeenCalled();
+
+
+----------------------------------------------------------------------------------
 
 Mocking function return:- mocking function return so that testing functionality doenst dependent on other function called in it.
 
@@ -515,4 +523,51 @@ Spec:
   });
 
 __________________________________________________________________________________
+
+NO_ERRORS_SCHEMA : while Testing Ignore html unknown elements and properties 
+
+Isolation of a component for shallow unit testing requires a large amount of boilerplate if your component is a container for many other components/services. One shortcut to having to import and mock at least first-level dependencies is to use NO_ERRORS_SCHEMA.
+
+beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ yourcomponent ],
+      schemas: [NO_ERRORS_SCHEMA]
+    })
+    .compileComponents();
+  }));
+
+
+https://medium.com/@fivedicephoto/why-you-shouldnt-use-no-errors-schema-in-angular-unit-tests-cdd478c30782
+
+_______________________________________________________________________________
+
+Mocking child Components :
+
+If you dont want dependency of child component added in your component while testing , than create mock of those component and add them in dependency
+
+PersonComponent: person.component.html
+<app-child-1></app-child-1>
+<app-child-2></app-child-2>
+
+Spec: 
+	@Component({
+		selector: 'app-child-1'
+  		template: '<p>Child 1</p>'
+	})
+	class Test1Component {}
+
+	@Component({
+		selector: 'app-child-2'
+  		template: '<p>Child 2</p>'
+	})
+	class Test2Component {}
+
+
+	beforeEach(async(() => {
+      		TestBed.configureTestingModule({
+        	declarations: [PersonComponent, Test1Component, Test2Component]
+      		}).compileComponents();
+    	}));
+
+___________________________________________________________________________________
 
