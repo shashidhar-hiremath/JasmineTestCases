@@ -1,9 +1,5 @@
 Testing:- 
 
-Reference links:
-
-https://offering.solutions/blog/articles/2018/08/17/using-useclass-usefactory-usevalue-useexisting-with-treeshakable-providers-in-angular/#usevalue
-
 Types of testing:
 	1) Isolated : unit testing creating every dependent functionalty as mock 
 	2) Intergarion : unit testing also verify dependent functionalty
@@ -374,6 +370,71 @@ Testing Component:
  });
 
 While configureTestingModule need to add all the dependency (component, directive , service , pipe & module). In case it is also needed to add dependences dependency.
+__________________________________________________________________________________
+
+************************Mocking service in component*************************
+service
+export class BootService {
+	vega() {
+		let object = { mono : 123};
+		return object;
+	}
+	
+	mario() {
+		let jump = { speed : congfig.speed };
+	}
+	
+	fire() {
+		bootfire();
+	}
+}
+
+Component Spec : - creating mock of service function
+
+Global mocking:-
+
+describe('Component', () => {
+	const mockObject = { mono : 123};
+	const mockSpeed = = { speed : 25 }
+	const mockBootService = { 
+		vega: jasmine.createSpy('vega').and.returnValue(of(mockObject)),
+		matio: jasmine.createSpy('mario').and.returnValue(of(mockSpeed)),
+		fire: jasmine.createSpy('fire')
+	};
+
+     beforeEach(async(() => {
+      TestBed.configureTestingModule({
+        declarations: [Component],
+<imp>   providers: [{ provide: BootService, useValue: mockBootService}],
+      }).compileComponents(); // This is not needed if you are in the CLI context
+    }));
+})
+
+
+when service function is called mocked function is called and return value assigned in returnValue(of(<value>));
+
+
+Alternate for individual test:-
+
+it('should', ()=>{
+	const mockObject = { mono : 234};
+	const bootService = TestBed.get(BootService);
+	spyOn(bootservice, 'vega').and.returnValue(of(mockObject));
+
+})
+
+OR 
+
+it('should', ()=>{
+	const mockObject = { mono : 234};
+
+	injector = getTestBed();
+	const bootService = injector.get(BootService);
+
+	spyOn(bootservice, 'vega').and.returnValue(of(mockObject));
+
+})
+	
 
 __________________________________________________________________________________
 
@@ -635,3 +696,164 @@ describe('GithubApiService', () => {
   });
 });
 __________________________________________________________________________________
+
+spyOn(foo, 'bar').and.callThrough()
+
+This will cause the actual method to be called. This is very straightforward when you have arguments that are passed by value such as a number.
+
+http://www.ard.ninja/blog/jasmine-testing-spyonfoo-bar-callthrough-thoughts/
+__________________________________________________________________________________
+
+CanDeactivate:
+
+export interface DeactivationGuarded {
+  canDeactivate(nextState: string): boolean;
+}
+
+@Injectable()
+export class CanDeactivateGuard implements CanDeactivate {
+  canDeactivate(component: DeactivationGuarded):  boolean {
+    return component.canDeactivate ? component.canDeactivate() : true;
+  }
+}
+
+Spec:- 
+
+it('should', () => {
+const service: CanDeactivateService = TestBed.get(CanDeactivateService);
+
+const mockCoponent = {
+	canDeactivate() {
+		return false;
+	}
+}
+
+const mockroute = {} as ActivateRouteSnapshot;
+const mockstate = {} as RouterStateSnapshot;
+
+const response = service.canDeactivate(mockCoponent, mockroute, mockstate);
+
+expect(response).toBe(false);
+})
+__________________________________________________________________________________
+
+**************************** Testing Async ***************************
+
+https://alligator.io/angular/testing-async-fakeasync/
+
+1) whenStable:-
+ 
+whenStable allows us to wait until all promises have been resolved to run our expectations.
+
+component :
+
+html :-
+
+<h1<{{ title }}</h1>
+
+  <button (click)="setTitle()" class="set-title">
+    set title
+  </button>
+
+ts :-
+
+setTitle() {
+    new Promise(resolve => {
+      resolve('One crazy app!');
+    }).then((val: string) => {
+      this.title = val;
+    });
+  }
+
+spec: -
+
+it('should display title', async(() => {
+    debugElement
+      .query(By.css('.set-title'))
+      .triggerEventHandler('click', null);
+
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      const value = debugElement.query(By.css('h1')).nativeElement.innerText;
+      expect(value).toEqual('One crazy app!');
+    });
+  }));
+
+2) FakeAsync :-
+
+The problem with async is that we still have to introduce real waiting in our tests, and this can make our tests very slow. fakeAsync comes to the rescue and helps to test asynchronous code in a synchronous way. 
+
+Component :
+
+Html: -
+
+<h1>
+  {{ incrementDecrement.value }}
+</h1>
+
+<button (click)="increment()" class="increment">
+  Increment
+</button>
+
+ts : -
+
+increment() {
+  setTimeout(() => {
+    if (this.value < 15) {
+      this.value += 1;
+      this.message = '';
+    } else {
+      this.message = 'Maximum reached!';
+    }
+  }, 5000); // wait 5 seconds to increment the value
+}
+
+Spec :- 
+
+import { TestBed, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
+
+
+it('should increment in template after 5 seconds', fakeAsync(() => {
+      debugElement
+        .query(By.css('button.increment'))
+        .triggerEventHandler('click', null);
+
+      tick(2000);
+      fixture.detectChanges();
+      let value = debugElement.query(By.css('h1')).nativeElement.innerText;
+      expect(value).toEqual('0'); // value should still be 0 after 2 seconds
+
+      tick(3000);
+      fixture.detectChanges();
+
+      const value = debugElement.query(By.css('h1')).nativeElement.innerText;
+      expect(value).toEqual('1'); // 3 seconds later, our value should now be 1
+    }));
+});
+
+OR other then tick() best to use flush
+
+It basically simulates the passage of time until the macrotask queue is empty. Macrotasks include things like setTimouts, setIntervals and 
+
+it('should increment in template', fakeAsync(() => {
+  debugElement
+    .query(By.css('button.increment'))
+    .triggerEventHandler('click', null);
+
+  flush();
+  fixture.detectChanges();
+
+  const value = debugElement.query(By.css('h1')).nativeElement.innerText;
+  expect(value).toEqual('1');
+}));
+__________________________________________________________________________________
+************************Some imp links************************* 
+Reference links:
+
+https://offering.solutions/blog/articles/2018/08/17/using-useclass-usefactory-usevalue-useexisting-with-treeshakable-providers-in-angular/#usevalue
+
+https://github.com/joeeames/PSAngularUnitTestingCourse/tree/master/src/app
+
+https://alligator.io/angular/testing-async-fakeasync/
+
+http://tobyho.com/2011/12/15/jasmine-spy-cheatsheet/
