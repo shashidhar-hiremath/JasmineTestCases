@@ -80,7 +80,7 @@ ________________________________________________________________________
 
 **************** Setup and teardown ****************
 
-Sometimes in order to test a feature we need to perform some setup, perhaps it’s creating some test objects. Also we may need to perform some cleanup activities after we have finished testing, perhaps we need to delete some files from the hard drive.
+Sometimes in order to test a feature we need to perform some setup, perhaps itâ€™s creating some test objects. Also we may need to perform some cleanup activities after we have finished testing, perhaps we need to delete some files from the hard drive.
 
 1) beforeAll : -
 	This function is called once, before all the specs in describe test suite are run.
@@ -847,6 +847,90 @@ it('should increment in template', fakeAsync(() => {
   expect(value).toEqual('1');
 }));
 __________________________________________________________________________________
+
+Mocking property (spyOnProperty):
+
+Service:
+class CommonService {
+	private counterValue = 0;
+	get counter() {
+		return counterValue++;
+	}
+} 
+
+Service spec:
+const commonService: CommonService = TestBed.get(CommonService);
+spyOnProperty(commonService, 'counter', 'get').and.returnValue(2);
+_________________________________________________________________________________
+
+Form controls change value & control validation testing:
+
+imp :
+	1) fixture.whenStable().then() : async operation
+	2) control.validator({} as AbstractControl); getting control validation
+Component:
+ this.feedbackForm.valueChanges.subscribe((value) => {
+      this.updateValidation();
+ });
+
+Component spec:
+
+component.feedbackForm.patchValue({ allowAdHocBeneficiaries: 1 });
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const validator = component.feedbackForm.get('email').validator({} as AbstractControl);
+      expect(validator.required).toBeTruthy();
+    });
+__________________________________________________________________________________
+
+Updating window object and testting :
+
+  it('should set isMobile to false when screen width is greater then 768', () => {
+    const componentFixture = TestBed.createComponent(BoxComponent);
+    const componentInstance = componentFixture.componentInstance;
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1000 });
+    componentFixture.detectChanges();
+    expect(componentInstance.isMobile).toBeFalsy();
+  });
+
+__________________________________________________________________________________
+
+Creating mock service while configuring
+
+Spec:
+
+class FakeDetailService {
+  name:[] = ['momo','somo', lomo];
+  getDetails() {
+    return of(name);
+  }
+}
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers:
+      { provide: DetailService, useClass: FakeDetailService }],
+    })
+      .compileComponents();
+  }));
+
+___________________________________________________________________________________
+
+Calling observable subscriber (of()):
+
+class RestService {
+   getDetails(): Observable<[]> {
+      return this.httpClient.get<[]>(this.detailsUrl);
+   }
+}
+
+Spec: 
+const mockNames = ['momo','somo', lomo];
+const restService = TestBed.get(RestService);
+spyOn(resrService, 'getDetails').and.returnValue(of(mockNames));
+
+___________________________________________________________________________________
+
 ************************Some imp links************************* 
 Reference links:
 
