@@ -974,6 +974,12 @@ it('ngOnInit when data is deleted successfully', () => {
   });
 _________________________________________________________________________________________
 
+Creating Error object for mock error throwing 
+
+const error: Error = new Error('ERROR');
+const httpErrorResponse: HttpErrorResponse = new HttpErrorResponse({ status: 404 });
+
+_________________________________________________________________________________________
 ************************Some imp links************************* 
 Reference links:
 
