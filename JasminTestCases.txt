@@ -360,7 +360,7 @@ Testing Component:
      // creating instance of the component below are the basic steps
      fixture = TestBed.createComponent(Comptonent);
      component = fixture.componentInstance;
-     fixture.detectChanges(); // applying change change detection strategy
+     fixture.detectChanges(); // applying change change detection strategy // onInti() is called here
      // if making any change in component then call this else if you are testing changes on UI will not be reflected
    });
 
