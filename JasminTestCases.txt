@@ -947,6 +947,33 @@ functionality testting Spec :
     });
 __________________________________________________________________________________
 
+Testing Query params:
+
+component.ts:
+
+this.activatedRoute.queryParams.subscribe(data => {
+      if (data.dataSaved === 'isSuccess') {
+        this.successMessageText = 'The details has been successfully created.';
+      } else if (data.dataUpdated === 'isSuccess') {
+        this.successMessageText = 'The details has been successfully updated.';
+      } else if (data.dataDeleted === 'isSuccess') {
+        this.successMessageText = 'The details has been successfully deleted.';
+      }
+});
+
+Spec:
+it('ngOnInit when data is deleted successfully', () => {
+    const dataDeleted = { dataDeleted: 'isSuccess' };
+    TestBed.get(ActivatedRoute).queryParams = of(dataDeleted);
+    const componentFixture = TestBed.createComponent(DetailsComponent);
+    const componentInstance = componentFixture.componentInstance;
+    const successMessageText = 'The details has been successfully deleted.';
+
+    componentFixture.detectChanges();
+    expect(componentInstance.successMessageText).toEqual(successMessageText);
+  });
+_________________________________________________________________________________________
+
 ************************Some imp links************************* 
 Reference links:
 
