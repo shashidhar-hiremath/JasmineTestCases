@@ -931,6 +931,22 @@ spyOn(resrService, 'getDetails').and.returnValue(of(mockNames));
 
 ___________________________________________________________________________________
 
+Firing event on element and testing result
+
+Description : audit_report_required is check box and name="auditReportOptions" is group of radio button, on uncheck of audit_report_required checkbox all radio button with input[name="auditReportOptions"] would get unchecked.
+
+functionality testting Spec : 
+
+ const el = fixture.nativeElement.querySelector('#audit_report_required');
+    el.checked = false;
+    el.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    const el2 = fixture.nativeElement.querySelector('input[name="auditReportOptions"]:checked');
+    fixture.whenStable().then(() => {
+      expect(el2).toBe(null);
+    });
+__________________________________________________________________________________
+
 ************************Some imp links************************* 
 Reference links:
 
